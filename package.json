@@ -4,11 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "/dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link": "tsc -p tsconfig.json && npm link",
+    "tsc":"tsc -p tsconfig.json"
   },
   "author": "",
   "license": "ISC",
