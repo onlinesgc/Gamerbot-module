@@ -1,22 +1,22 @@
 export class PorfileData{
-    userID : String;
-    serverID : String;
-    xp : Number;
-    lastMessageTimestamp : Number;
-    xpTimeoutUntil : Number;
-    level : Number;
-    reminder : Array<String>
-    colorHexCode : String;
-    privateVoiceID : String;
-    privateVoiceThreadID : String;
-    profileFrame: String;
-    hasLeftTicket: Boolean;
-    xpboost : Object;
-    exclusiveFrames : Array<String>;
-    modLogs: Array<Object>;
-    minecraftWhiteList:Boolean;
-	minecraftUsername:String;
-	minecraftUuid:String;
+    userID : string;
+    serverID : string;
+    xp : number;
+    lastMessageTimestamp : number;
+    xpTimeoutUntil : number;
+    level : number;
+    reminder : Array<string>
+    colorHexCode : string;
+    privateVoiceID : string;
+    privateVoiceThreadID : string;
+    profileFrame: string;
+    hasLeftTicket: boolean;
+    xpboost : object;
+    exclusiveFrames : Array<string>;
+    modLogs: Array<object>;
+    minecraftWhiteList:boolean;
+	minecraftUsername:string;
+	minecraftUuid:string;
     constructor(json_data:any){
         this.userID = json_data.userID;
         this.serverID = json_data.serverID;
