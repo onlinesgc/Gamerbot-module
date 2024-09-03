@@ -38,10 +38,10 @@ export class GuildData{
         this.sverokMails = json_data.sverokMails;
     }
     /**
-     * Saves to database
+     * Saves guild data to database
      */
     async save(){
-        new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let changed_data : any = {};
             Object.keys(this).forEach((key) => {
                 if(key == "json_data")
@@ -61,7 +61,6 @@ export class GuildData{
                     'authorization': 'Bearer ' + GamerBotAPI.TOKEN
                 }
             }).then((response) => {resolve(response)}).catch((err) => {console.error(err)});
-           resolve(changed_data);
         });
     }
 }
