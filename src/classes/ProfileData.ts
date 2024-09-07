@@ -7,7 +7,7 @@ export class PorfileData{
     lastMessageTimestamp : number;
     xpTimeoutUntil : number;
     level : number;
-    reminder : Array<string>
+    reminders : Array<object>
     colorHexCode : string;
     privateVoiceID : string;
     privateVoiceThreadID : string;
@@ -28,7 +28,7 @@ export class PorfileData{
         this.lastMessageTimestamp = json_data.lastMessageTimestamp;
         this.xpTimeoutUntil = json_data.xpTimeoutUntil;
         this.level = json_data.level;
-        this.reminder = json_data.reminder;
+        this.reminders = json_data.reminders;
         this.colorHexCode = json_data.colorHexCode;
         this.privateVoiceID = json_data.privateVoiceID;
         this.privateVoiceThreadID = json_data.privateVoiceThreadID;

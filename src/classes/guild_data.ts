@@ -11,7 +11,7 @@ export class GuildData{
     allowedLinksChannels : Array<string>;
     trustedLinkRoles : Array<string>;
     noXpChannels : Array<string>;
-    whitelistedLinks : Array<string>;
+    whitelistedLinks : Array<object>;
     threedChannels : Array<string>;
     bansTimes : Array<object>;
     topicList : Array<string>;
