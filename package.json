@@ -1,32 +1,32 @@
 {
-  "name": "gamerbot-module",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "files": [
-    "/dist"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "link": "tsc -p tsconfig.json && npm link",
-    "tsc": "tsc -p tsconfig.json"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@eslint/js": "^9.10.0",
-    "@types/node": "^20.12.13",
-    "concurrently": "^8.2.2",
-    "eslint": "^9.10.0",
-    "globals": "^15.9.0",
-    "nodemon": "^3.1.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^8.5.0"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5"
-  }
+    "name": "gamerbot-module",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "files": [
+        "/dist"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "link": "tsc -p tsconfig.json && npm link",
+        "tsc": "tsc -p tsconfig.json"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@eslint/js": "^9.10.0",
+        "@types/node": "^20.12.13",
+        "concurrently": "^8.2.2",
+        "eslint": "^9.10.0",
+        "globals": "^15.9.0",
+        "nodemon": "^3.1.2",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.5",
+        "typescript-eslint": "^8.5.0"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5"
+    }
 }
