@@ -1,6 +1,6 @@
 {
     "name": "gamerbot-module",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "description": "",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -13,8 +13,8 @@
         "link": "tsc -p tsconfig.json && npm link",
         "tsc": "tsc -p tsconfig.json"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "lukasabbe",
+    "license": "MIT",
     "devDependencies": {
         "@eslint/js": "^9.10.0",
         "@types/node": "^20.12.13",

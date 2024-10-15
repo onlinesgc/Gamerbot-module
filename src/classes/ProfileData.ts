@@ -19,7 +19,8 @@ export class PorfileData {
     minecraftWhiteList: boolean;
     minecraftUsername: string;
     minecraftUuid: string;
-    old_old_messages: Array<object>;
+    old_messages: Array<string>;
+    hashed_email: string;
     // eslint-disable-next-line
     json_data: any;
     // eslint-disable-next-line
@@ -43,7 +44,8 @@ export class PorfileData {
         this.minecraftWhiteList = json_data.minecraftWhiteList;
         this.minecraftUsername = json_data.minecraftUsername;
         this.minecraftUuid = json_data.minecraftUuid;
-        this.old_old_messages = json_data.old_old_messages;
+        this.old_messages = json_data.old_messages;
+        this.hashed_email = json_data.hashed_email;
     }
     /**
      *  Saves user data to database

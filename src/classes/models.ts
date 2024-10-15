@@ -17,6 +17,8 @@ export class Models {
         const profile_data = new PorfileData(data);
         return profile_data;
     }
+
+
     /**
      * get all profile data
      * @param max_users amount of users to fetch
