@@ -43,12 +43,16 @@ export class GamerBotAPI {
         }
     }
     public static arraysEqual<T>(a: Array<T>, b: Array<T>) {
-        // if the other array is a falsy value, return
-        if (!a) return false;
-        // if the argument is the same array, we can be sure the contents are same as well
         if (a === b) return true;
-        // compare lengths - can save a lot of time
-        if (b.length != a.length) return false;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+      
+        for (let i = 0; i < a.length; ++i) {
+            if(typeof a[i] === 'object' && typeof b[i] === 'object'){
+                if(!this.arraysEqual(Object.entries(a[i] as object), Object.entries(b[i] as object))) return false;
+            }
+            else if (a[i] !== b[i]) return false;
+        }
         return true;
     }
 }

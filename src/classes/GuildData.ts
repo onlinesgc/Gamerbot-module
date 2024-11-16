@@ -51,15 +51,10 @@ export class GuildData {
             Object.keys(this).forEach((key) => {
                 if (key == "json_data") return;
                 const value = Object.entries(this).find(
-                    ([k, v]) =>
-                        k == key &&
-                        ((!Array.isArray(v) &&
-                            !Object.is(v, this.json_data[key])) ||
-                            (Array.isArray(v) &&
-                                !GamerBotAPI.arraysEqual(
-                                    v,
-                                    this.json_data[key],
-                                ))),
+                    ([k, v]) =>{
+                        if(k != key) return false;
+                        return JSON.stringify(v) != JSON.stringify(this.json_data[key]);
+                    }
                 );
                 if (value) changed_data[key] = value[1];
             });
