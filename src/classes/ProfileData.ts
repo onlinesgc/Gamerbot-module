@@ -1,4 +1,4 @@
-import { GamerBotAPI } from "./gamerbot";
+import { GamerBotAPI } from "./gamerbot.js";
 
 export class PorfileData {
     userID: string;

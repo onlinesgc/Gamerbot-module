@@ -1,4 +1,4 @@
-import { Models } from "./models";
+import { Models } from "./models.js";
 
 /**
  * GamerBotAPI class, connect to the gamerbot API

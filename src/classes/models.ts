@@ -1,7 +1,7 @@
-import { ConfigData } from "./ConfigData";
-import { GamerBotAPI } from "./gamerbot";
-import { GuildData } from "./GuildData";
-import { PorfileData } from "./ProfileData";
+import { ConfigData } from "./ConfigData.js";
+import { GamerBotAPI } from "./gamerbot.js";
+import { GuildData } from "./GuildData.js";
+import { PorfileData } from "./ProfileData.js";
 
 export class Models {
     constructor() {}
@@ -85,6 +85,8 @@ export class Models {
         if (profile_data.level > 31) {
             xpPercentage = Math.round((profile_data.xp / 961) * 100);
         }
+
+        if(!profile_data.colorHexCode) profile_data.colorHexCode = "#000000";
 
         const data = (await this.fetch_data(
             GamerBotAPI.API_URL + "/public_api/frame/generate",
