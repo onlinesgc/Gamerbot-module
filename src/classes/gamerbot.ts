@@ -16,17 +16,18 @@ export class GamerBotAPI {
         if (dev) {
             GamerBotAPI.API_URL = "http://localhost:3000";
         }
-        this.getAPIStatus().then(() => {
-            console.log("API is available");
-            this.apiStatus = true;
+        this.getAPIStatus().then((t) => {
+            if(t) {
+                console.log("API is available");
+            }
         });
     }
 
-    public async getAPIStatus() {
+    public async getAPIStatus() : Promise<boolean> {
         const response = await fetch(GamerBotAPI.API_URL).catch(()=>{});
 
         if(response == undefined){
-            return await new Promise(r =>{
+            return await new Promise<boolean>(r =>{
                 console.error(
                     "API is not available, trying to connect to the API again in 5 seconds",
                 );
@@ -45,7 +46,11 @@ export class GamerBotAPI {
                 this.getAPIStatus();
             }, 5000);
         });
-        if (data.service == "OK") return;
+
+        if (data.service == "OK"){
+            this.apiStatus = true;
+            return true;
+        }
         else {
             console.error(
                 "API is not available, trying to connect to the API again in 5 seconds",
@@ -54,6 +59,7 @@ export class GamerBotAPI {
                 this.getAPIStatus();
             }, 5000);
         }
+        return false;
     }
     public static arraysEqual<T>(a: Array<T>, b: Array<T>) {
         if (a === b) return true;
