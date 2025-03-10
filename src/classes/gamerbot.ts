@@ -23,7 +23,20 @@ export class GamerBotAPI {
     }
 
     public async getAPIStatus() {
-        const response = await fetch(GamerBotAPI.API_URL);
+        const response = await fetch(GamerBotAPI.API_URL).catch(()=>{});
+
+        if(response == undefined){
+            return await new Promise(r =>{
+                console.error(
+                    "API is not available, trying to connect to the API again in 5 seconds",
+                );
+                setTimeout(()=>{
+                    this.getAPIStatus();
+                    r(false);
+                }, 5000);
+            });
+        }
+        
         const data = await response.json().catch(() => {
             console.error(
                 "API is not available, trying to connect to the API again in 5 seconds",
