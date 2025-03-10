@@ -21,6 +21,8 @@ export class GuildData {
     //eslint-disable-next-line
     json_data: any;
     //eslint-disable-next-line
+    extraObjects: Map<string, any>;
+    //eslint-disable-next-line
     constructor(json_data: any) {
         this.json_data = JSON.parse(JSON.stringify(json_data));
         this.guildID = json_data.guildID;
@@ -40,6 +42,7 @@ export class GuildData {
         this.staffModlogs = json_data.staffModlogs;
         this.sverokMails = json_data.sverokMails;
         this.frameConfig = json_data.frameConfig;
+        this.extraObjects = new Map(Object.entries(json_data.extraObjects));
     }
     /**
      * Saves guild data to database
