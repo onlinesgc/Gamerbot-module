@@ -3,27 +3,17 @@ import { GamerBotAPI } from "./gamerbot.js";
 export class ConfigData {
     id: number;
     debug: boolean;
-    username: string;
-    activity: string;
-    activityType: string;
-    removeLinks: boolean;
-    xp: object;
-    importantUpdatesChannelId: object;
-    debugGuildID: string;
+    levelSystem: LevelSystem;
+    extraobjects: Map<string, object>;
     // eslint-disable-next-line
-    json_data: any;
+    jsonData: any;
     // eslint-disable-next-line
-    constructor(json_data: any) {
-        this.json_data = JSON.parse(JSON.stringify(json_data));
-        this.id = json_data.id;
-        this.debug = json_data.debug;
-        this.username = json_data.username;
-        this.activity = json_data.activity;
-        this.activityType = json_data.activityType;
-        this.removeLinks = json_data.removeLinks;
-        this.xp = json_data.xp;
-        this.importantUpdatesChannelId = json_data.importantUpdatesChannelId;
-        this.debugGuildID = json_data.debugGuildID;
+    constructor(jsonData: any) {
+        this.jsonData = JSON.parse(JSON.stringify(jsonData));
+        this.id = jsonData.id;
+        this.debug = jsonData.debug;
+        this.levelSystem = jsonData.levelSystem;
+        this.extraobjects = new Map(Object.entries(jsonData.extraobjects));
     }
     /**
      * Saves config data to database
@@ -31,22 +21,22 @@ export class ConfigData {
     async save() {
         return new Promise((resolve) => {
             // eslint-disable-next-line
-            const changed_data: any = {};
+            const changedData: any = {};
             Object.keys(this).forEach((key) => {
-                if (key == "json_data") return;
+                if (key == "jsonData") return;
                 const value = Object.entries(this).find(
                     ([k, v]) =>{
                         if(k != key) return false;
-                        return JSON.stringify(v) != JSON.stringify(this.json_data[key]);
+                        return JSON.stringify(v) != JSON.stringify(this.jsonData[key]);
                     }
                 );
-                if (value) changed_data[key] = value[1];
+                if (value) changedData[key] = value[1];
             });
-            if (Object.keys(changed_data).length == 0)
-                return resolve(changed_data);
+            if (Object.keys(changedData).length == 0)
+                return resolve(changedData);
             fetch(GamerBotAPI.API_URL + "/api/config/" + this.id, {
                 method: "POST",
-                body: JSON.stringify(changed_data),
+                body: JSON.stringify(changedData),
                 headers: {
                     "Content-Type": "application/json",
                     authorization: "Bearer " + GamerBotAPI.TOKEN,
@@ -60,4 +50,14 @@ export class ConfigData {
                 });
         });
     }
+}
+
+interface LevelSystem {
+    levelExponent: number;
+    levels: Array<Level>;
+}
+interface Level {
+    ids: Array<string>;
+    level: number;
+    message: string;
 }

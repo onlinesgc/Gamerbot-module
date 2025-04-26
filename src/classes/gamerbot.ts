@@ -21,6 +21,7 @@ export class GamerBotAPI {
                 console.log("API is available");
             }
         });
+
     }
 
     public async getAPIStatus() : Promise<boolean> {
