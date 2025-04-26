@@ -11,7 +11,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "link": "tsc -p tsconfig.json && npm link",
-        "tsc": "tsc -p tsconfig.json"
+        "build": "tsc -p tsconfig.json"
     },
     "author": "lukasabbe",
     "license": "MIT",
