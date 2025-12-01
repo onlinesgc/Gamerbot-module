@@ -4,63 +4,80 @@ export class UserData {
     userId: string;
     levelSystem: LevelSystem;
     frameData: FrameData;
-    voiceData: voiceData;
-    modLogs: Array<object>
-    minecraftData: minecraftData;
+    voiceData: VoiceData;
+    modLogs: Array<ModLog>;
+    minecraftData: MinecraftData;
     hashedEmail: string;
-    reminders: Array<string>;
+    reminders: Array<object>;
     extraObjects: Map<string, object>
     // eslint-disable-next-line
     jsonData: any;
     // eslint-disable-next-line
-    constructor(json_data: any) {
-        this.jsonData = JSON.parse(JSON.stringify(json_data));
-        this.userId = json_data.userId;
-        this.levelSystem = json_data.levelSystem;
-        this.frameData = json_data.frameData;
-        this.voiceData = json_data.voiceData;
-        this.modLogs = json_data.modLogs;
-        this.minecraftData = json_data.minecraftData;
-        this.hashedEmail = json_data.hashedEmail;
-        this.reminders = json_data.reminders;
-        this.extraObjects = new Map(Object.entries(json_data.extraObjects));
+    constructor(jsonData: any) {
+        this.jsonData = JSON.parse(JSON.stringify(jsonData));
+        this.userId = jsonData.userId;
+        this.levelSystem = jsonData.levelSystem;
+        this.frameData = jsonData.frameData;
+        this.voiceData = jsonData.voiceData;
+        this.modLogs = jsonData.modLogs;
+        this.minecraftData = jsonData.minecraftData;
+        this.hashedEmail = jsonData.hashedEmail;
+        this.reminders = jsonData.reminders;
+        this.extraObjects = new Map(Object.entries(jsonData.extraObjects));
     }
     /**
      *  Saves user data to database
      */
     async save() {
-        return new Promise((resolve) => {
-            // eslint-disable-next-line
-            const changed_data: any = {};
-            Object.keys(this).forEach((key) => {
-                if (key == "json_data") return;
-                const value = Object.entries(this).find(
-                    ([k, v]) =>{
-                        if(k != key) return false;
-                        return JSON.stringify(v) != JSON.stringify(this.jsonData[key]);
-                    }
-                );
-                if (value) changed_data[key] = value[1];
-            });
-            if (Object.keys(changed_data).length == 0)
-                return resolve(changed_data);
-            fetch(GamerBotAPI.API_URL + "/api/user/" + this.userId, {
+        // eslint-disable-next-line
+        const changedData: any = {};
+        for (const key of Object.keys(this) as Array<keyof UserData>){
+            if (key == "jsonData") continue;
+            const currentValue = this[key];
+            const jsonValue = this.jsonData[key];
+            if (key === "extraObjects" && currentValue instanceof Map){
+                const mapAsObject = Object.fromEntries(currentValue);
+                if (JSON.stringify(mapAsObject) !== JSON.stringify(jsonValue)){
+                    changedData[key] = mapAsObject;
+                }
+                continue;
+            }
+
+            if (typeof currentValue === "object" && currentValue !== null){
+                if (JSON.stringify(currentValue) !== JSON.stringify(jsonValue)){
+                    changedData[key] = currentValue;
+                }
+            }else if(currentValue !== jsonValue){
+                changedData[key] = currentValue;
+            }
+        }
+
+        if (Object.keys(changedData).length > 0){
+            const jsonData = await fetch(GamerBotAPI.API_URL + "/api/user/" + this.userId, {
                 method: "POST",
-                body: JSON.stringify(changed_data),
+                body: JSON.stringify(changedData),
                 headers: {
                     "Content-Type": "application/json",
                     authorization: "Bearer " + GamerBotAPI.TOKEN,
-                },
-            })
-                .then((response) => {
-                    resolve(response);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        });
+                }
+            });
+
+            if (!jsonData.ok){
+                console.error("Failed to save config data:", await jsonData.text());
+                return;
+            }
+
+            this.jsonData = {
+                ...this.jsonData,
+                ...changedData,
+            }
+
+            const data = await jsonData.json();
+            return data;
+        }
     }
 }
+
 interface LevelSystem {
     level: number;
     xp: number;
@@ -73,11 +90,21 @@ interface FrameData {
     selectedFrame: number;
     frames: Array<string>;
 }
-interface voiceData {
+interface VoiceData {
     voiceChannelId: string;
     voiceChannelThreadId: string;
 }
-interface minecraftData {
+interface MinecraftData {
     uuid: string;
     username: string;
+}
+
+interface ModLog {
+    type: string;
+    userId: string;
+    username: string;
+    reason: string;
+    timestamp: number;
+    length: number;
+    authorId: string;
 }

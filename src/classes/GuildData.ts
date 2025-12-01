@@ -27,36 +27,52 @@ export class GuildData {
      * Saves guild data to database
      */
     async save() {
-        return new Promise((resolve) => {
-            //eslint-disable-next-line
-            const changed_data: any = {};
-            Object.keys(this).forEach((key) => {
-                if (key == "jsonData") return;
-                const value = Object.entries(this).find(
-                    ([k, v]) =>{
-                        if(k != key) return false;
-                        return JSON.stringify(v) != JSON.stringify(this.jsonData[key]);
-                    }
-                );
-                if (value) changed_data[key] = value[1];
-            });
-            if (Object.keys(changed_data).length == 0)
-                return resolve(changed_data);
-            fetch(GamerBotAPI.API_URL + "/api/guild/" + this.guildId, {
+        // eslint-disable-next-line
+        const changedData: any = {};
+        for (const key of Object.keys(this) as Array<keyof GuildData>){
+            if (key == "jsonData") continue;
+            const currentValue = this[key];
+            const jsonValue = this.jsonData[key];
+            if (key === "extraObjects" && currentValue instanceof Map){
+                const mapAsObject = Object.fromEntries(currentValue);
+                if (JSON.stringify(mapAsObject) !== JSON.stringify(jsonValue)){
+                    changedData[key] = mapAsObject;
+                }
+                continue;
+            }
+
+            if (typeof currentValue === "object" && currentValue !== null){
+                if (JSON.stringify(currentValue) !== JSON.stringify(jsonValue)){
+                    changedData[key] = currentValue;
+                }
+            }else if(currentValue !== jsonValue){
+                changedData[key] = currentValue;
+            }
+        }
+
+        if (Object.keys(changedData).length > 0){
+            const jsonData = await fetch(GamerBotAPI.API_URL + "/api/guild/" + this.guildId, {
                 method: "POST",
-                body: JSON.stringify(changed_data),
+                body: JSON.stringify(changedData),
                 headers: {
                     "Content-Type": "application/json",
                     authorization: "Bearer " + GamerBotAPI.TOKEN,
-                },
-            })
-                .then((response) => {
-                    resolve(response);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-        });
+                }
+            });
+
+            if (!jsonData.ok){
+                console.error("Failed to save config data:", await jsonData.text());
+                return;
+            }
+
+            this.jsonData = {
+                ...this.jsonData,
+                ...changedData,
+            }
+
+            const data = await jsonData.json();
+            return data;
+        }
     }
 }
 interface voiceChannelData {
@@ -79,4 +95,5 @@ interface frameData {
     name: string;
     path: string;
     id: string;
+    foregroundPath: string;
 }

@@ -4,13 +4,16 @@ import { GuildData } from "./GuildData.js";
 import { UserData } from "./UserData.js";
 
 export class Models {
-    constructor() {}
+    cachedUsersFrames: Map<string, UserFrameData>;
+    constructor() {
+        this.cachedUsersFrames = new Map<string, UserFrameData>();
+    }
     /**
-     * get profile data
+     * Get user data
      * @param userId discord user id
      * @returns
      */
-    public async getProfileData(userId: string) {
+    public async getUserData(userId: string) {
         const data = await this.fetchData(
             GamerBotAPI.API_URL + "/api/user/" + userId,
         );
@@ -20,27 +23,23 @@ export class Models {
 
 
     /**
-     * get all profile data
+     * Get multiple users data
      * @param maxUsers amount of users to fetch
      * @returns
      */
-    public async getAllProfileData(maxUsers: number, filter: object = {}) {
+    public async getAllUserData(maxUsers: number, filter: object = {}) {
         const data = (await this.fetchData(
             GamerBotAPI.API_URL + "/api/user/fetch_many",
             "POST",
             { maxUsers: maxUsers, filter: filter },
-            // eslint-disable-next-line
-        )) as Array<any>;
+        ));
         const userData: UserData[] = [];
-        // eslint-disable-next-line
-        data.forEach((element: any) => {
-            userData.push(new UserData(element));
-        });
+        data.forEach((element: unknown) => userData.push(new UserData(element)));
         return userData;
     }
 
     /**
-     * get config data
+     * Get config data
      * @param id config id
      * @returns
      */
@@ -53,7 +52,7 @@ export class Models {
     }
 
     /**
-     * get guild data
+     * Get guild data
      * @param guildId discord guild id
      * @returns
      */
@@ -72,14 +71,16 @@ export class Models {
     public async getUserFrame(
         userId: string,
         username: string,
-        avatarUrl: string,
-        force: boolean = false,
+        avatarUrl: string
     ) {
-        const userData = await this.getProfileData(userId);
+        const userData = await this.getUserData(userId);
 
-        let xpPercentage = Math.round(
-            (userData.levelSystem.xp / userData.levelSystem.level ** 2) * 100,
-        );
+        let xpPercentage;
+        if(userData.levelSystem.level == 0){
+            xpPercentage = Math.round((userData.levelSystem.xp / (userData.levelSystem.level + 1) ** 2) * 100);
+        }else{
+            xpPercentage = Math.round((userData.levelSystem.xp / userData.levelSystem.level ** 2) * 100);
+        }
 
         // Progressbar is constant after lvl 31
         if (userData.levelSystem.level > 31) {
@@ -88,18 +89,41 @@ export class Models {
 
         if(!userData.frameData.frameColorHexCode) userData.frameData.frameColorHexCode = "#000000";
 
+        let cachedFrame : UserFrameData | null = null;
+        if (this.cachedUsersFrames.has(userId)){
+            cachedFrame = this.cachedUsersFrames.get(userId)!;
+            if (cachedFrame.xp != userData.levelSystem.xp ||
+                cachedFrame.level != userData.levelSystem.level ||
+                cachedFrame.hexColor != userData.frameData.frameColorHexCode ||
+                cachedFrame.frameId != userData.frameData.selectedFrame){
+                cachedFrame = null;
+                this.cachedUsersFrames.delete(userId);
+            }
+        }
+
+        if (cachedFrame == null){
+            cachedFrame = {
+                frameId: userData.frameData.selectedFrame,
+                hexColor: userData.frameData.frameColorHexCode,
+                xpPercentage: xpPercentage,
+                xp: userData.levelSystem.xp,
+                level: userData.levelSystem.level,
+                cachedId: Math.random().toString(36).substring(2, 15),
+            };
+            this.cachedUsersFrames.set(userId, cachedFrame);
+        }
+
         const data = (await this.fetchData(
             GamerBotAPI.API_URL + "/public_api/frame/generate",
             "POST",
             {
-                userid: userId,
-                frame_id: userData.frameData.selectedFrame,
-                hex_color: userData.frameData.frameColorHexCode,
-                username: username,
-                level: userData.levelSystem.level - 1,
-                xp_percentage: xpPercentage,
-                avatar_url: avatarUrl,
-                force: force,
+                name: username,
+                frameId: cachedFrame.frameId,
+                hexColor: cachedFrame.hexColor,
+                level: cachedFrame.level,
+                xpPercentage: cachedFrame.xpPercentage,
+                memberAvatar: avatarUrl,
+                cachedId: cachedFrame.cachedId,
             },
             false,
         )) as Response;
@@ -108,7 +132,7 @@ export class Models {
 
     public async getFrameConfig() {
         const data = await this.fetchData(GamerBotAPI.API_URL + "/public_api/frame/config");
-        return data;
+        return data as FrameConfigElement[];
     }
 
     /**
@@ -160,4 +184,20 @@ export class Models {
             // eslint-disable-next-line
         }) as Promise<any>;
     }
+}
+
+interface FrameConfigElement {
+    name: string;
+    id: number;
+    path: string;
+    frameLink: string;
+}
+
+interface UserFrameData {
+    frameId: number;
+    hexColor: string;
+    xpPercentage: number;
+    xp: number;
+    level: number;
+    cachedId: string;
 }
