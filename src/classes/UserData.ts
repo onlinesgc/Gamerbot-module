@@ -8,7 +8,7 @@ export class UserData {
     modLogs: Array<ModLog>;
     minecraftData: MinecraftData;
     hashedEmail: string;
-    reminders: Array<object>;
+    reminders: Array<Reminder>;
     extraObjects: Map<string, object>
     // eslint-disable-next-line
     jsonData: any;
@@ -107,4 +107,10 @@ interface ModLog {
     timestamp: number;
     length: string | null;
     authorId: string;
+}
+
+export interface Reminder {
+    message: string;
+    userId: string;
+    timestamp: number;
 }

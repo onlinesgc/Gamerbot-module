@@ -71,7 +71,7 @@ export class Models {
     public async getUserFrame(
         userId: string,
         username: string,
-        avatarUrl: string
+        avatarUrl: string | null,
     ) {
         const userData = await this.getUserData(userId);
 
