@@ -105,6 +105,6 @@ interface ModLog {
     username: string;
     reason: string;
     timestamp: number;
-    length: number;
+    length: string | null;
     authorId: string;
 }
