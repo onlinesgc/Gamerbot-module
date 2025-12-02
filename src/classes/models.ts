@@ -132,7 +132,7 @@ export class Models {
 
     public async getFrameConfig() {
         const data = await this.fetchData(GamerBotAPI.API_URL + "/public_api/frame/config");
-        return data as FrameConfigElement[];
+        return data.frames as FrameConfigElement[];
     }
 
     /**
