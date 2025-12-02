@@ -1,126 +1,146 @@
 import { ConfigData } from "./ConfigData.js";
 import { GamerBotAPI } from "./gamerbot.js";
 import { GuildData } from "./GuildData.js";
-import { PorfileData } from "./ProfileData.js";
+import { UserData } from "./UserData.js";
 
 export class Models {
-    constructor() {}
+    cachedUsersFrames: Map<string, UserFrameData>;
+    constructor() {
+        this.cachedUsersFrames = new Map<string, UserFrameData>();
+    }
     /**
-     * get profile data
-     * @param user_id discord user id
+     * Get user data
+     * @param userId discord user id
      * @returns
      */
-    public async get_profile_data(user_id: string) {
-        const data = await this.fetch_data(
-            GamerBotAPI.API_URL + "/api/user/" + user_id,
+    public async getUserData(userId: string) {
+        const data = await this.fetchData(
+            GamerBotAPI.API_URL + "/api/user/" + userId,
         );
-        const profile_data = new PorfileData(data);
-        return profile_data;
+        const userData = new UserData(data);
+        return userData;
     }
 
 
     /**
-     * get all profile data
-     * @param max_users amount of users to fetch
+     * Get multiple users data
+     * @param maxUsers amount of users to fetch
      * @returns
      */
-    public async get_all_profile_data(max_users: number, filter: object = {}) {
-        const data = (await this.fetch_data(
+    public async getAllUserData(maxUsers: number, filter: object = {}) {
+        const data = (await this.fetchData(
             GamerBotAPI.API_URL + "/api/user/fetch_many",
             "POST",
-            { maxUsers: max_users, filter: filter },
-            // eslint-disable-next-line
-        )) as Array<any>;
-        const profile_data: PorfileData[] = [];
-        // eslint-disable-next-line
-        data.forEach((element: any) => {
-            profile_data.push(new PorfileData(element));
-        });
-        return profile_data;
+            { maxUsers: maxUsers, filter: filter },
+        ));
+        const userData: UserData[] = [];
+        data.forEach((element: unknown) => userData.push(new UserData(element)));
+        return userData;
     }
 
     /**
-     * get config data
+     * Get config data
      * @param id config id
      * @returns
      */
-    public async get_config_data(id: number) {
-        const data = await this.fetch_data(
+    public async getConfigData(id: number) {
+        const data = await this.fetchData(
             GamerBotAPI.API_URL + "/api/config/" + id,
         );
-        const config_data = new ConfigData(data);
-        return config_data;
+        const configData = new ConfigData(data);
+        return configData;
     }
 
     /**
-     * get guild data
-     * @param guild_id discord guild id
+     * Get guild data
+     * @param guildId discord guild id
      * @returns
      */
-    public async get_guild_data(guild_id: string) {
-        const data = await this.fetch_data(
-            GamerBotAPI.API_URL + "/api/guild/" + guild_id,
+    public async getGuildData(guildId: string) {
+        const data = await this.fetchData(
+            GamerBotAPI.API_URL + "/api/guild/" + guildId,
         );
         return new GuildData(data);
     }
 
     /**
      * Get users frame
-     * @param user_id
+     * @param userId
      * @returns
      */
-    public async get_user_frame(
-        user_id: string,
+    public async getUserFrame(
+        userId: string,
         username: string,
-        avatar_url: string,
-        force: boolean = false,
+        avatarUrl: string | null,
     ) {
-        const profile_data = await this.get_profile_data(user_id);
+        const userData = await this.getUserData(userId);
 
-        let xpPercentage = Math.round(
-            (profile_data.xp / profile_data.level ** 2) * 100,
-        );
-
-        // Progressbar is constant after lvl 31
-        if (profile_data.level > 31) {
-            xpPercentage = Math.round((profile_data.xp / 961) * 100);
+        let xpPercentage;
+        if(userData.levelSystem.level == 0){
+            xpPercentage = Math.round((userData.levelSystem.xp / (userData.levelSystem.level + 1) ** 2) * 100);
+        }else{
+            xpPercentage = Math.round((userData.levelSystem.xp / userData.levelSystem.level ** 2) * 100);
         }
 
-        if(!profile_data.colorHexCode) profile_data.colorHexCode = "#000000";
+        // Progressbar is constant after lvl 31
+        if (userData.levelSystem.level > 31) {
+            xpPercentage = Math.round((userData.levelSystem.xp / 961) * 100);
+        }
 
-        const data = (await this.fetch_data(
+        if(!userData.frameData.frameColorHexCode) userData.frameData.frameColorHexCode = "#000000";
+
+        let cachedFrame : UserFrameData | null = null;
+        if (this.cachedUsersFrames.has(userId)){
+            cachedFrame = this.cachedUsersFrames.get(userId)!;
+            if (cachedFrame.xp != userData.levelSystem.xp ||
+                cachedFrame.level != userData.levelSystem.level ||
+                cachedFrame.hexColor != userData.frameData.frameColorHexCode ||
+                cachedFrame.frameId != userData.frameData.selectedFrame){
+                cachedFrame = null;
+                this.cachedUsersFrames.delete(userId);
+            }
+        }
+
+        if (cachedFrame == null){
+            cachedFrame = {
+                frameId: userData.frameData.selectedFrame,
+                hexColor: userData.frameData.frameColorHexCode,
+                xpPercentage: xpPercentage,
+                xp: userData.levelSystem.xp,
+                level: userData.levelSystem.level,
+                cachedId: Math.random().toString(36).substring(2, 15),
+            };
+            this.cachedUsersFrames.set(userId, cachedFrame);
+        }
+
+        const data = (await this.fetchData(
             GamerBotAPI.API_URL + "/public_api/frame/generate",
             "POST",
             {
-                userid: user_id,
-                frame_id: profile_data.profileFrame,
-                hex_color: profile_data.colorHexCode,
-                username: username,
-                level: profile_data.level - 1,
-                xp_percentage: xpPercentage,
-                avatar_url: avatar_url,
-                force: force,
+                name: username,
+                frameId: cachedFrame.frameId,
+                hexColor: cachedFrame.hexColor,
+                level: cachedFrame.level,
+                xpPercentage: cachedFrame.xpPercentage,
+                memberAvatar: avatarUrl,
+                cachedId: cachedFrame.cachedId,
             },
             false,
         )) as Response;
         return Buffer.from(await data.arrayBuffer());
     }
 
-    public async get_frame_config(guild_id: string) {
-        const data = await this.fetch_data(GamerBotAPI.API_URL + "/public_api/frame/get/config", "POST", {guildId: guild_id});
-        return data;
+    public async getFrameConfig() {
+        const data = await this.fetchData(GamerBotAPI.API_URL + "/public_api/frame/config");
+        return data.frames as FrameConfigElement[];
     }
 
     /**
      * Gets frame image
      */
-    public async get_frame(guild_id: string, frame_id: string) {
-        const data = (await this.fetch_data(
-            GamerBotAPI.API_URL +
-                "/public_api/frame/get/" +
-                guild_id +
-                "/" +
-                frame_id,
+    public async getFrame(frameId: string) {
+        const data = (await this.fetchData(
+            GamerBotAPI.API_URL + "/public_api/frame/" + frameId,
             "GET",
             null,
             false,
@@ -128,23 +148,18 @@ export class Models {
         return Buffer.from(await data.arrayBuffer());
     }
 
-    /**
-     * Get users frame
-     * @param user_id
-     * @returns
-     */
-    private fetch_data(
+    private fetchData(
         url: string,
         method: string = "GET",
         // eslint-disable-next-line
-        json_data: any = null,
-        convert_to_json: boolean = true,
+        jsonData: any = null,
+        convertToJson: boolean = true,
     ) {
-        json_data = json_data ? JSON.stringify(json_data) : null;
+        jsonData = jsonData ? JSON.stringify(jsonData) : null;
         return new Promise((resolve, reject) => {
             fetch(url, {
                 method: method,
-                body: json_data,
+                body: jsonData,
                 headers: {
                     "Content-Type": "application/json",
                     authorization: "Bearer " + GamerBotAPI.TOKEN,
@@ -156,7 +171,7 @@ export class Models {
                         console.error("Error fetching data: ", error);
                         reject(error);
                     }
-                    if (!convert_to_json) return response;
+                    if (!convertToJson) return response;
                     else return response.json();
                 })
                 .then((data) => {
@@ -169,4 +184,20 @@ export class Models {
             // eslint-disable-next-line
         }) as Promise<any>;
     }
+}
+
+interface FrameConfigElement {
+    name: string;
+    id: number;
+    path: string;
+    frameLink: string;
+}
+
+interface UserFrameData {
+    frameId: number;
+    hexColor: string;
+    xpPercentage: number;
+    xp: number;
+    level: number;
+    cachedId: string;
 }

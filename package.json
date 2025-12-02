@@ -6,27 +6,46 @@
     "types": "dist/index.d.ts",
     "type": "module",
     "files": [
-        "/dist"
+        "dist"
     ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "link": "tsc -p tsconfig.json && npm link",
-        "tsc": "tsc -p tsconfig.json"
+        "prebuild": "rm -rf dist",
+        "build": "npm run prebuild && tsc -p tsconfig.json",
+        "prepare": "npm run build"
     },
     "author": "lukasabbe",
     "license": "MIT",
     "devDependencies": {
-        "@eslint/js": "^9.10.0",
-        "@types/node": "^20.12.13",
-        "concurrently": "^8.2.2",
-        "eslint": "^9.10.0",
-        "globals": "^15.9.0",
-        "nodemon": "^3.1.2",
+        "@eslint/js": "^9.39.1",
+        "@types/node": "^24.10.1",
+        "concurrently": "^9.2.1",
+        "eslint": "^9.39.1",
+        "globals": "^16.5.0",
+        "nodemon": "^3.1.11",
         "ts-node": "^10.9.2",
-        "typescript": "^5.4.5",
-        "typescript-eslint": "^8.5.0"
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.48.0"
     },
     "dependencies": {
-        "dotenv": "^16.4.5"
+        "dotenv": "^17.2.3"
+    }
+    ,
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/onlinesgc/Gamerbot-module.git"
+    },
+    "bugs": {
+        "url": "https://github.com/onlinesgc/Gamerbot-module/issues"
+    },
+    "homepage": "https://github.com/onlinesgc/Gamerbot-module#readme",
+    "engines": {
+        "node": ">=16"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/index.js"
+        }
     }
 }
