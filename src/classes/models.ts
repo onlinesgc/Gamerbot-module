@@ -1,6 +1,7 @@
 import { ConfigData } from "./ConfigData.js";
 import { GamerBotAPI } from "./gamerbot.js";
 import { GuildData } from "./GuildData.js";
+import { MinecraftData } from "./MinecraftData.js";
 import { UserData } from "./UserData.js";
 
 export class Models {
@@ -146,6 +147,17 @@ export class Models {
             false,
         )) as Response;
         return Buffer.from(await data.arrayBuffer());
+    }
+
+    /**
+     * Get all Minecraft users linked to Discord accounts
+     */
+    public async getAllMinecraftUsers(){
+        const data = await this.fetchData(
+            GamerBotAPI.API_URL + "/api/user/minecraft/data/",
+            "GET"
+        ) as MinecraftData[];
+        return data;
     }
 
     private fetchData(
