@@ -9,6 +9,7 @@ export class GuildData {
     noXpChannels: Array<string>;
     frames: Array<frameData>;
     extraObjects: Map<string, object>;
+    hashedEmails: Array<string>;
     // eslint-disable-next-line
     jsonData: any;
     // eslint-disable-next-line
@@ -21,6 +22,7 @@ export class GuildData {
         this.topics = jsonData.topics;
         this.noXpChannels = jsonData.noXpChannels;
         this.frames = jsonData.frames;
+        this.hashedEmails = jsonData.hashedEmails;
         this.extraObjects = new Map(Object.entries(jsonData.extraObjects));
     }
     /**
